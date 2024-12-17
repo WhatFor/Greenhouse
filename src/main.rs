@@ -4,18 +4,17 @@ use std::process::Command;
 use anyhow::{Result, Context};
 use std::thread::sleep;
 
+const DOCKER_CONNECTION_RETRIES: u8 = 10;
+
 fn main() -> Result<()> {
     println!("Starting Greenhouse...");
-    let socket_path = "/usr/bin/docker";
+    let socket_path = "/var/run/docker.sock";
     
-    // Retry connection up to 30 times (30 seconds)
-    for i in 0..30 {
+    for i in 0..DOCKER_CONNECTION_RETRIES {
         println!("Attempting to connect to Docker socket (attempt {})", i + 1);
         
         match UnixStream::connect(socket_path) {
             Ok(mut stream) => {
-                println!("Successfully connected to Docker socket");
-                // Your Docker API code here
                 return Ok(());
             }
             Err(e) => {
